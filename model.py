@@ -74,7 +74,7 @@ def get_portfolio_new(user_data):
     p_weights = []  # Определить пустой массив для весов активов
 
     num_assets = len(df.columns)
-    num_portfolios = 10000
+    num_portfolios = 100000
 
     for portfolio in range(num_portfolios):
         weights = np.random.random(num_assets)
