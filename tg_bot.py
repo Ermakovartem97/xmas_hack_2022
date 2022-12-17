@@ -5,7 +5,7 @@ from json import loads
 from Take_all_stonck import insert_data_persons, take_user_portfolio
 from model import get_portfolio_new
 
-token = ''
+token = '5912072774:AAEXlXaoviSufMgPd4ZjfDR5xCnGgeZj6Po'
 bot = telebot.TeleBot(token)
 competition_name = ''
 tmp_user = []
@@ -68,7 +68,7 @@ def callback_inline(call):
         if data['st'] == "cp2":
             user_data.append(data['a'])
             bot.send_message(call.message.chat.id,
-                             'Какое количество средств вы планируете вложить?')
+                             'Какое количество средств вы планируете вложить?\nВвделите одну цифру в рублях')
 
             @bot.message_handler(content_types='text')
             def take_sum(message):
@@ -105,15 +105,27 @@ def create_portfolio(call):
 
 
 @bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('ps'))
-def create_portfolio(call):
+def setting_portfolio(call):
+    user_settings = types.InlineKeyboardMarkup(row_width=3)
+    button1 = types.InlineKeyboardButton("Настроить", callback_data='{"st":"us"}')
+    button2 = types.InlineKeyboardButton('Стандартные настройки', callback_data='{"st":"us"}')
+    user_settings.add(button1, button2)
+    global tmp_user
+    if len(tmp_user) < 3:
+        tmp_user = [2, 2, 100000]
     bot.send_message(call.message.chat.id,
-                     f'Настройки для вашего портфеля:\n\nУровень риска {user_data[0]}\nГоризонт планирования {user_data[1]}\nВаш бюджет {user_data[2]}\nКоличество акций в портфеле 10\nТип отбора акций 2\nИсключенные акции нет\nКоличество вариаций портфеля 10000\n')
+                     f'Настройки для вашего портфеля:\n\nУровень риска {tmp_user[0]}\n'
+                     f'Горизонт планирования {tmp_user[1]}\n'
+                     f'Ваш бюджет {tmp_user[2]}\n'
+                     f'Количество акций в портфеле 10\n'
+                     f'Тип отбора акций 2\n'
+                     f'Исключенные акции нет\n'
+                     f'Количество вариаций портфеля 10000\n', reply_markup=user_settings)
+
+
+@bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('us'))
+def setting_portfolio_call(call):
     bot.send_message(call.message.chat.id, 'Данный функционал находится в разработке')
-
-
-@bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('ncp'))
-def create_portfolio(call):
-    bot.send_message(call.message.chat.id, 'Настройте свой профиль в личном кабинете /lk')
 
 
 bot.infinity_polling()

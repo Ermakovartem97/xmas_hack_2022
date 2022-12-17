@@ -74,7 +74,7 @@ def get_portfolio_new(user_data):
     p_weights = []  # Определить пустой массив для весов активов
 
     num_assets = len(df.columns)
-    num_portfolios = 100000
+    num_portfolios = 10000
 
     for portfolio in range(num_portfolios):
         weights = np.random.random(num_assets)
@@ -126,7 +126,7 @@ def get_portfolio_new(user_data):
     answer = quantity_stocks(int(user_data[2]), ans_tmp)
     answer = f'Доходность: {optimal_risky_port[0]:.2%}\nРиски: {optimal_risky_port[1]:.2%}\n\n' + answer
 
-    print(answer)
+    #print(answer)
 
     return answer
 
