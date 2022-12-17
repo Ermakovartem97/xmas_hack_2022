@@ -11,6 +11,7 @@ competition_name = ''
 tmp_user = []
 user_data = []
 
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     is_create_profile = types.InlineKeyboardMarkup(row_width=2)
@@ -44,7 +45,6 @@ def callback_inline(call):
     try:
         data = loads(call.data)
         if data['st'] == "cp":
-
             choose_risk = types.InlineKeyboardMarkup(row_width=3)
             button1 = types.InlineKeyboardButton("Минимальный", callback_data='{"st":"cp1","a":"1"}')
             button2 = types.InlineKeyboardButton('Средний', callback_data='{"st":"cp1","a":"2"}')
@@ -57,9 +57,9 @@ def callback_inline(call):
         if data['st'] == "cp1":
             user_data.append(data['a'])
             choose_risk = types.InlineKeyboardMarkup(row_width=3)
-            button1 = types.InlineKeyboardButton("3 месяца", callback_data='{"st":"cp2","a":"3"}')
-            button2 = types.InlineKeyboardButton('6 месяцев', callback_data='{"st":"cp2","a":"6"}')
-            button3 = types.InlineKeyboardButton('12 месяцев', callback_data='{"st":"cp2","a":"12"}')
+            button1 = types.InlineKeyboardButton("6 месяцев", callback_data='{"st":"cp2","a":"6"}')
+            button2 = types.InlineKeyboardButton('1 год', callback_data='{"st":"cp2","a":"12"}')
+            button3 = types.InlineKeyboardButton('2 года', callback_data='{"st":"cp2","a":"24"}')
             choose_risk.add(button1, button2, button3)
             bot.send_message(call.message.chat.id,
                              'Какой горизонт планирования вас устроит?',
@@ -82,31 +82,38 @@ def callback_inline(call):
     except Exception as e:
         print(repr(e))
 
+
 @bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('mp'))
 def get_portfolio(call):
-    portfolio = take_user_portfolio(call.message.from_user.id).tail(1)
+    portfolio = take_user_portfolio(call.message.chat.id).tail(1)
     if portfolio.shape[0] > 0:
-        bot.send_message(call.message.chat.id, f'Ваш портфель:\n{str(portfolio.iloc[0,0])}')
+        bot.send_message(call.message.chat.id, f'Ваш портфель:\n{str(portfolio.iloc[0, 0])}')
     else:
-        bot.send_message(call.message.chat.id, 'Создайте новый портфель в личном кабинете')
+        bot.send_message(call.message.chat.id, 'Создайте новый портфель в личном кабинете /lk')
+
 
 @bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('pp'))
 def create_portfolio(call):
     bot.send_message(call.message.chat.id, 'Начался подбор портфеля, ожидайте')
     global tmp_user
-    print(len(tmp_user))
     if len(tmp_user) < 3:
         tmp_user = [2, 2, 100000]
     portfolio = get_portfolio_new(tmp_user)
-    bot.send_message(call.message.chat.id, 'Формирование портфеля закончено, вы можете посмотреть его в личном кабинете')
-    insert_data_persons([(str(call.message.from_user.id), str(portfolio)),])
+    bot.send_message(call.message.chat.id,
+                     'Формирование портфеля закончено, вы можете посмотреть его в личном кабинете')
+    insert_data_persons([(str(call.message.chat.id), str(portfolio)), ])
+
 
 @bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('ps'))
 def create_portfolio(call):
+    bot.send_message(call.message.chat.id,
+                     f'Настройки для вашего портфеля:\n\nУровень риска {user_data[0]}\nГоризонт планирования {user_data[1]}\nВаш бюджет {user_data[2]}\nКоличество акций в портфеле 10\nТип отбора акций 2\nИсключенные акции нет\nКоличество вариаций портфеля 10000\n')
     bot.send_message(call.message.chat.id, 'Данный функционал находится в разработке')
+
 
 @bot.callback_query_handler(func=lambda call: loads(call.data)['st'] in ('ncp'))
 def create_portfolio(call):
     bot.send_message(call.message.chat.id, 'Настройте свой профиль в личном кабинете /lk')
+
 
 bot.infinity_polling()
