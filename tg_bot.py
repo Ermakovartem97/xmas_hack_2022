@@ -5,7 +5,7 @@ from json import loads
 from Take_all_stonck import insert_data_persons, take_user_portfolio
 from model import get_portfolio_new
 
-token = '5912072774:AAEXlXaoviSufMgPd4ZjfDR5xCnGgeZj6Po'
+token = ''
 bot = telebot.TeleBot(token)
 competition_name = ''
 tmp_user = []
